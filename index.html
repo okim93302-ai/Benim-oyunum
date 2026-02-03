@@ -2,14 +2,28 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Yılan Oyunu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yılan Oyunu - Mobil</title>
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #2c3e50; }
-        canvas { border: 5px solid #fff; background: #000; }
+        body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #2c3e50; font-family: sans-serif; overflow: hidden; }
+        canvas { border: 5px solid #fff; background: #000; max-width: 90vw; max-height: 40vh; }
+        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
+        .btn { width: 75px; height: 75px; background: #ecf0f1; border: none; border-radius: 50%; font-size: 30px; color: #2c3e50; touch-action: manipulation; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px #bdc3c7; }
+        .btn:active { box-shadow: 0 2px #bdc3c7; transform: translateY(4px); }
+        .up { grid-column: 2; }
+        .left { grid-column: 1; }
+        .right { grid-column: 3; }
+        .down { grid-column: 2; }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="controls">
+        <button class="btn up" onclick="changeDir('UP')">↑</button>
+        <button class="btn left" onclick="changeDir('LEFT')">←</button>
+        <button class="btn right" onclick="changeDir('RIGHT')">→</button>
+        <button class="btn down" onclick="changeDir('DOWN')">↓</button>
+    </div>
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
@@ -17,20 +31,20 @@
         let snake = [{ x: 10 * box, y: 10 * box }];
         let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
         let d;
-        document.addEventListener("keydown", e => {
-            if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
-            else if(e.keyCode == 38 && d != "DOWN") d = "UP";
-            else if(e.keyCode == 39 && d != "LEFT") d = "RIGHT";
-            else if(e.keyCode == 40 && d != "UP") d = "DOWN";
-        });
+        function changeDir(newDir) {
+            if(newDir == "LEFT" && d != "RIGHT") d = "LEFT";
+            else if(newDir == "UP" && d != "DOWN") d = "UP";
+            else if(newDir == "RIGHT" && d != "LEFT") d = "RIGHT";
+            else if(newDir == "DOWN" && d != "UP") d = "DOWN";
+        }
         function draw() {
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             for(let i = 0; i < snake.length; i++) {
-                ctx.fillStyle = (i == 0) ? "green" : "lime";
+                ctx.fillStyle = (i == 0) ? "#2ecc71" : "#27ae60";
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
             }
-            ctx.fillStyle = "red";
+            ctx.fillStyle = "#e74c3c";
             ctx.fillRect(food.x, food.y, box, box);
             let snakeX = snake[0].x;
             let snakeY = snake[0].y;
@@ -40,14 +54,19 @@
             if( d == "DOWN") snakeY += box;
             if(snakeX == food.x && snakeY == food.y) {
                 food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-            } else {
-                snake.pop();
-            }
+            } else { snake.pop(); }
             let newHead = { x: snakeX, y: snakeY };
-            if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height) location.reload();
+            if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
+                location.reload();
+            }
             snake.unshift(newHead);
         }
-        let game = setInterval(draw, 100);
+        function collision(head, array) {
+            for(let i = 0; i < array.length; i++) { if(head.x == array[i].x && head.y == array[i].y) return true; }
+            return false;
+        }
+        setInterval(draw, 150);
     </script>
 </body>
 </html>
+
