@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Görev Listem</title>
+    <style>
+        :root { --primary: #6c5ce7; --bg: #0f0c29; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to right, #24243e, #302b63, #0f0c29); height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; color: white; }
+        .container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 2rem; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); width: 350px; }
+        h2 { text-align: center; margin-top: 0; }
+        .input-group { display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border-radius: 8px; border: none; outline: none; }
+        button#add-btn { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        button#add-btn:hover { opacity: 0.8; transform: scale(1.05); }
+        ul { list-style: none; padding: 0; margin-top: 20px; }
+        li { background: rgba(255,255,255,0.05); padding: 10px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.5s ease; }
+        .delete-btn { background: #ff7675; border: none; color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Görev Listesi</h2>
+    <div class="input-group">
+        <input type="text" id="todo-input" placeholder="Yeni görev ekle...">
+        <button id="add-btn">+</button>
+    </div>
+    <ul id="todo-list"></ul>
+</div>
+
+<script>
+    const input = document.querySelector('#todo-input');
+    const addBtn = document.querySelector('#add-btn');
+    const todoList = document.querySelector('#todo-list');
+
+    // Sayfa açıldığında verileri yükle
+    document.addEventListener('DOMContentLoaded', getTodos);
+
+    addBtn.addEventListener('click', () => {
+        if (input.value === '') return;
+        addTodo(input.value);
+        saveLocal(input.value);
+        input.value = '';
+    });
+
+    function addTodo(text) {
+        const li = document.createElement('li');
+        li.innerHTML = `${text} <button class="delete-btn">Sil</button>`;
+        li.querySelector('.delete-btn').addEventListener('click', function() {
+            removeLocal(text);
+            li.remove();
+        });
+        todoList.appendChild(li);
+    }
+
+    function saveLocal(todo) {
+        let todos = localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')) : [];
+        todos.push(todo);
+        localStorage.setItem('todos', JSON.stringify(todos));
+    }
+
+    function getTodos() {
+        let todos = localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')) : [];
+        todos.forEach(todo => addTodo(todo));
+    }
+
+    function removeLocal(todo) {
+        let todos = JSON.parse(localStorage.getItem('todos'));
+        const index = todos.indexOf(todo);
+        todos.splice(index, 1);
+        localStorage.setItem('todos', JSON.stringify(todos));
+    }
+</script>
+
+</body>
+</html>
